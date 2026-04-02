@@ -7,10 +7,12 @@
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CycleWatch" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" href="icons/icon-192.png" />
   <meta name="theme-color" content="#0058bc" />
 
   <!-- Fonts -->
@@ -136,7 +138,7 @@
           Map Token <span class="normal-case font-normal text-outline">(pk.*)</span>
         </label>
         <input id="input-map-token"
-               type="password"
+               type="text"
                placeholder="pk.eyJ…"
                autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
                class="w-full px-4 py-3 rounded-xl bg-surface-container-low
@@ -166,7 +168,7 @@
           Feedback Token <span class="normal-case font-normal text-outline">(sk.*)</span>
         </label>
         <input id="input-feedback-token"
-               type="password"
+               type="text"
                placeholder="sk.eyJ…"
                autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
                class="w-full px-4 py-3 rounded-xl bg-surface-container-low
