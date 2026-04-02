@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CycleWatch - Kinetic Sanctuary</title>
+<!-- Google Fonts: Inter for editorial authority -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#e3e2e7",
+                        "on-tertiary-fixed": "#241a00",
+                        "inverse-surface": "#2f3034",
+                        "on-primary-fixed": "#001a41",
+                        "surface-container-high": "#e9e7ed",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-secondary-container": "#fffbff",
+                        "tertiary": "#745b00",
+                        "primary-container": "#0070eb",
+                        "secondary-fixed": "#ffdad5",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#f1c100",
+                        "primary": "#0058bc",
+                        "on-surface": "#1a1b1f",
+                        "surface-container": "#eeedf3",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-bright": "#faf9fe",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e3e2e7",
+                        "secondary": "#bc000a",
+                        "surface-tint": "#005bc1",
+                        "secondary-container": "#e2241f",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c1c6d7",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#584400",
+                        "surface-dim": "#dad9df",
+                        "surface": "#faf9fe",
+                        "primary-fixed-dim": "#adc6ff",
+                        "background": "#faf9fe",
+                        "surface-container-low": "#f4f3f8",
+                        "tertiary-container": "#d0a600",
+                        "on-background": "#1a1b1f",
+                        "on-surface-variant": "#414755",
+                        "on-tertiary-container": "#4f3d00",
+                        "inverse-primary": "#adc6ff",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#930005",
+                        "on-primary-container": "#fefcff",
+                        "tertiary-fixed": "#ffe08b",
+                        "outline": "#717786",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f1f0f5",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#ffb4aa",
+                        "on-secondary-fixed": "#410001"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.25rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface overflow-hidden">
+<!-- TopAppBar Shell (Immutable Identity) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="menu">menu</span>
+<h1 class="headline-md font-bold tracking-tight Inter text-xl font-black text-slate-900 dark:text-slate-50">CycleWatch</h1>
+</div>
+<!-- Updated +Report Button: Larger & More Prominent -->
+<button class="bg-primary hover:bg-primary/90 transition-all active:scale-95 duration-200 ease-out text-on-primary px-5 py-2.5 rounded-xl text-sm font-extrabold shadow-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[20px]">add</span> Report
+        </button>
+</header>
+<!-- Main View Canvas -->
+<main class="flex flex-col h-screen pt-16">
+<!-- Map Canvas (55% Height) -->
+<section class="h-[55%] relative w-full overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="Modern minimalist city map in light street style with clear cycling routes and soft grey buildings" data-location="San Francisco" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFvUl9HBuI1fWdSoI-zEOXyoO8xJsWo4xH0_JgkL84Jv3xqOQWNYtc9Mg9qoAFkxL73ks3HN4ZrS-AV_CcBqhCy7iVh8j8Vj9OH90GN59H0ckQQjCGytEdXDBbV6PBkFwBK87Y3B6zPXEfLb41ewIDJKI5u7CJn6r4EddTcedAjbynnTTkjGg093hgYvpAOtleiGlNRpoJqmLF749bgVTsJzyQxo0krOAsg07TRqeNHoPfGJ6k_v61O8nMCUD3-7fvucDmA6c2WNc"/>
+</div>
+<!-- Map Floating Controls -->
+<div class="absolute right-4 top-4 flex flex-col gap-3 z-10">
+<button class="w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg text-primary">
+<span class="material-symbols-outlined text-xl">my_location</span>
+</button>
+<button class="w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-xl">layers</span>
+</button>
+</div>
+<!-- Custom Pins -->
+<div class="absolute top-[30%] left-[45%] z-10 flex flex-col items-center">
+<div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+</div>
+<div class="absolute top-[50%] left-[20%] z-10 flex flex-col items-center">
+<div class="w-8 h-8 bg-tertiary rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings: 'FILL' 1;">construction</span>
+</div>
+</div>
+<div class="absolute bottom-[20%] right-[30%] z-10 flex flex-col items-center">
+<div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings: 'FILL' 1;">car_crash</span>
+</div>
+</div>
+</section>
+<!-- Feed Sheet (45% Height) -->
+<section class="h-[45%] bg-surface-container-low rounded-t-[1.5rem] relative z-20 flex flex-col shadow-[0_-8px_40px_rgba(0,0,0,0.05)]">
+<!-- Sheet Handle -->
+<div class="w-10 h-1 bg-outline-variant/30 rounded-full mx-auto mt-3 mb-2"></div>
+<!-- Header: Editorial & Pill Style Control -->
+<div class="px-4 pt-2 pb-3">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-xl font-black tracking-tight text-on-surface">Activity</h2>
+<!-- Reverted Pill Style Segmented Control -->
+<div class="bg-surface-container-high p-1 rounded-full flex w-44">
+<button class="flex-1 text-xs font-bold py-1.5 rounded-full bg-surface-container-lowest shadow-sm text-primary">Nearby</button>
+<button class="flex-1 text-xs font-bold py-1.5 rounded-full text-on-surface-variant">Mine</button>
+</div>
+</div>
+<!-- Feed Content: Compact List Items -->
+<div class="space-y-2 overflow-y-auto h-[calc(45vh-130px)] pb-24">
+<!-- Incident Card: Accident -->
+<div class="bg-surface-container-lowest p-3 rounded-xl flex items-center gap-3 transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<div class="w-11 h-11 bg-secondary-container/10 flex items-center justify-center rounded-xl shrink-0">
+<span class="material-symbols-outlined text-secondary text-2xl" style="font-variation-settings: 'FILL' 1;">car_crash</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-on-surface font-bold text-base leading-tight">Accident</h3>
+<span class="text-[10px] uppercase tracking-widest font-black text-secondary">Critical</span>
+</div>
+<p class="text-on-surface-variant text-xs mt-0.5">Market St &amp; 5th Ave</p>
+<div class="flex items-center gap-3 mt-1.5">
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">distance</span> 200m
+                                </span>
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 4m ago
+                                </span>
+</div>
+</div>
+</div>
+<!-- Incident Card: Road Closure -->
+<div class="bg-surface-container-lowest p-3 rounded-xl flex items-center gap-3 transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<div class="w-11 h-11 bg-tertiary-container/10 flex items-center justify-center rounded-xl shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl" style="font-variation-settings: 'FILL' 1;">block</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-on-surface font-bold text-base leading-tight">Road Closure</h3>
+<span class="text-[10px] uppercase tracking-widest font-black text-tertiary">Moderate</span>
+</div>
+<p class="text-on-surface-variant text-xs mt-0.5">Valencia St Bike Lane</p>
+<div class="flex items-center gap-3 mt-1.5">
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">distance</span> 1.2km
+                                </span>
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 12m ago
+                                </span>
+</div>
+</div>
+</div>
+<!-- Incident Card: Hazard -->
+<div class="bg-surface-container-lowest p-3 rounded-xl flex items-center gap-3 transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<div class="w-11 h-11 bg-secondary-container/10 flex items-center justify-center rounded-xl shrink-0">
+<span class="material-symbols-outlined text-secondary text-2xl" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-on-surface font-bold text-base leading-tight">Hazard</h3>
+<span class="text-[10px] uppercase tracking-widest font-black text-secondary">Caution</span>
+</div>
+<p class="text-on-surface-variant text-xs mt-0.5">The Embarcadero South</p>
+<div class="flex items-center gap-3 mt-1.5">
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">distance</span> 2.4km
+                                </span>
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 28m ago
+                                </span>
+</div>
+</div>
+</div>
+<!-- Incident Card: Construction -->
+<div class="bg-surface-container-lowest p-3 rounded-xl flex items-center gap-3 transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<div class="w-11 h-11 bg-tertiary-container/10 flex items-center justify-center rounded-xl shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl" style="font-variation-settings: 'FILL' 1;">construction</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline">
+<h3 class="text-on-surface font-bold text-base leading-tight">Construction</h3>
+<span class="text-[10px] uppercase tracking-widest font-black text-tertiary">Moderate</span>
+</div>
+<p class="text-on-surface-variant text-xs mt-0.5">Polk St Intersection</p>
+<div class="flex items-center gap-3 mt-1.5">
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">distance</span> 0.8km
+                                </span>
+<span class="text-[10px] font-bold text-on-surface-variant/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 1h ago
+                                </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-outline-variant/10 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
+<!-- Destination: Nearby (Active) -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary/5 rounded-xl px-5 py-2 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="text-[10px] font-black tracking-tight mt-0.5">Nearby</span>
+</a>
+<!-- Destination: Mine (Inactive) -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:bg-slate-100/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-black tracking-tight mt-0.5">Mine</span>
+</a>
+</nav>
+<!-- Hazard Banner Overlay (Top Float - Contextual) -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md z-40">
+<div class="bg-secondary-container/90 backdrop-blur-xl p-3.5 rounded-xl flex items-center gap-3 shadow-lg border border-white/20">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">error</span>
+<p class="text-white text-xs font-black">High wind advisory on Golden Gate Bridge</p>
+</div>
+</div>
+</body></html>

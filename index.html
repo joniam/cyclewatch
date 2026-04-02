@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CycleWatch</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CycleWatch" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="theme-color" content="#0058bc" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'primary':                    '#0058bc',
+            'on-primary':                 '#ffffff',
+            'primary-container':          '#0070eb',
+            'primary-fixed':              '#d8e2ff',
+            'primary-fixed-dim':          '#adc6ff',
+            'on-primary-fixed':           '#001a41',
+            'on-primary-fixed-variant':   '#004493',
+            'secondary':                  '#bc000a',
+            'on-secondary':               '#ffffff',
+            'secondary-container':        '#e2241f',
+            'on-secondary-container':     '#fffbff',
+            'secondary-fixed':            '#ffdad5',
+            'secondary-fixed-dim':        '#ffb4aa',
+            'on-secondary-fixed':         '#410001',
+            'on-secondary-fixed-variant': '#930005',
+            'tertiary':                   '#745b00',
+            'on-tertiary':                '#ffffff',
+            'tertiary-container':         '#d0a600',
+            'on-tertiary-container':      '#4f3d00',
+            'tertiary-fixed':             '#ffe08b',
+            'tertiary-fixed-dim':         '#f1c100',
+            'on-tertiary-fixed':          '#241a00',
+            'on-tertiary-fixed-variant':  '#584400',
+            'surface':                    '#faf9fe',
+            'surface-dim':                '#dad9df',
+            'surface-bright':             '#faf9fe',
+            'surface-container-lowest':   '#ffffff',
+            'surface-container-low':      '#f4f3f8',
+            'surface-container':          '#eeedf3',
+            'surface-container-high':     '#e9e7ed',
+            'surface-container-highest':  '#e3e2e7',
+            'surface-variant':            '#e3e2e7',
+            'surface-tint':               '#005bc1',
+            'on-surface':                 '#1a1b1f',
+            'on-surface-variant':         '#414755',
+            'inverse-surface':            '#2f3034',
+            'inverse-on-surface':         '#f1f0f5',
+            'inverse-primary':            '#adc6ff',
+            'outline':                    '#717786',
+            'outline-variant':            '#c1c6d7',
+            'background':                 '#faf9fe',
+            'on-background':              '#1a1b1f',
+            'error':                      '#ba1a1a',
+            'on-error':                   '#ffffff',
+            'error-container':            '#ffdad6',
+            'on-error-container':         '#93000a',
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          borderRadius: {
+            DEFAULT: '0.75rem',
+            'lg':    '1rem',
+            'xl':    '1.25rem',
+            '2xl':   '1.5rem',
+            '3xl':   '2rem',
+            'full':  '9999px',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Mapbox GL JS v3 -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    ::-webkit-scrollbar { display: none; }
+    #map { width: 100%; height: 100%; }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface overflow-hidden h-screen">
+
+  <!-- ── Token setup / settings screen ────────────────────────── -->
+  <div id="screen-token" class="hidden fixed inset-0 z-[100] bg-surface flex flex-col">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 h-14 shrink-0
+                border-b border-outline-variant/10">
+      <h1 class="text-xl font-black tracking-tight text-on-surface">CycleWatch</h1>
+      <button id="btn-token-close"
+              class="hidden w-9 h-9 flex items-center justify-center rounded-xl
+                     text-on-surface-variant hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined text-xl">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-5">
+
+      <div>
+        <p class="text-[11px] font-black uppercase tracking-widest text-primary mb-1">Setup</p>
+        <h2 class="text-2xl font-black tracking-tight text-on-surface leading-tight">
+          Connect your Mapbox tokens
+        </h2>
+        <p class="text-sm text-on-surface-variant mt-2">
+          Two tokens are needed — one for map tiles, one for the Feedback API.
+          Both are stored only on this device and never leave it.
+        </p>
+      </div>
+
+      <!-- Map token (pk.*) -->
+      <div class="flex flex-col gap-2">
+        <label class="text-[11px] font-black uppercase tracking-widest text-on-surface-variant">
+          Map Token <span class="normal-case font-normal text-outline">(pk.*)</span>
+        </label>
+        <input id="input-map-token"
+               type="password"
+               placeholder="pk.eyJ…"
+               autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+               class="w-full px-4 py-3 rounded-xl bg-surface-container-low
+                      border border-outline-variant/40 text-on-surface text-sm
+                      placeholder:text-outline focus:outline-none
+                      focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+        <div id="map-token-status" class="hidden flex items-center gap-2 text-xs font-semibold px-1"></div>
+
+        <!-- Settings: current map token -->
+        <div id="current-map-token-row"
+             class="hidden bg-surface-container rounded-xl px-3 py-2
+                    flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="material-symbols-outlined text-[16px] text-primary shrink-0">map</span>
+            <span id="current-map-token-display"
+                  class="text-xs font-mono text-on-surface-variant truncate"></span>
+          </div>
+          <button id="btn-clear-map-token"
+                  class="shrink-0 text-xs font-bold text-secondary px-2 py-1 rounded-lg
+                         hover:bg-secondary/10 transition-colors">Clear</button>
+        </div>
+      </div>
+
+      <!-- Feedback token (sk.*) -->
+      <div class="flex flex-col gap-2">
+        <label class="text-[11px] font-black uppercase tracking-widest text-on-surface-variant">
+          Feedback Token <span class="normal-case font-normal text-outline">(sk.*)</span>
+        </label>
+        <input id="input-feedback-token"
+               type="password"
+               placeholder="sk.eyJ…"
+               autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+               class="w-full px-4 py-3 rounded-xl bg-surface-container-low
+                      border border-outline-variant/40 text-on-surface text-sm
+                      placeholder:text-outline focus:outline-none
+                      focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+        <div id="feedback-token-status" class="hidden flex items-center gap-2 text-xs font-semibold px-1"></div>
+
+        <!-- Settings: current feedback token -->
+        <div id="current-feedback-token-row"
+             class="hidden bg-surface-container rounded-xl px-3 py-2
+                    flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="material-symbols-outlined text-[16px] text-primary shrink-0">feedback</span>
+            <span id="current-feedback-token-display"
+                  class="text-xs font-mono text-on-surface-variant truncate"></span>
+          </div>
+          <button id="btn-clear-feedback-token"
+                  class="shrink-0 text-xs font-bold text-secondary px-2 py-1 rounded-lg
+                         hover:bg-secondary/10 transition-colors">Clear</button>
+        </div>
+      </div>
+
+      <!-- How to create tokens — collapsible -->
+      <div class="bg-surface-container-low rounded-xl overflow-hidden">
+        <button id="btn-more-info"
+                class="w-full flex items-center justify-between px-4 py-3
+                       text-sm font-bold text-on-surface text-left">
+          <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px] text-primary">help_outline</span>
+            How to create your tokens
+          </span>
+          <span id="more-info-chevron"
+                class="material-symbols-outlined text-[18px] text-outline transition-transform duration-200">
+            expand_more
+          </span>
+        </button>
+
+        <div id="more-info-body" class="hidden px-4 pb-4 flex flex-col gap-4">
+
+          <div>
+            <p class="text-[11px] font-black uppercase tracking-widest text-primary mb-2">
+              Map token (pk.*)
+            </p>
+            <p class="text-sm text-on-surface-variant">
+              Your default public token from
+              <strong class="text-on-surface">account.mapbox.com → Access Tokens</strong>.
+              No special scopes needed — just copy the default <code class="bg-surface-container px-1 py-0.5 rounded text-[11px]">pk.*</code> token.
+            </p>
+          </div>
+
+          <div>
+            <p class="text-[11px] font-black uppercase tracking-widest text-tertiary mb-2">
+              Feedback token (sk.*)
+            </p>
+            <ol class="flex flex-col gap-2.5 text-sm text-on-surface-variant list-none">
+              <li class="flex gap-3">
+                <span class="shrink-0 w-5 h-5 rounded-full bg-tertiary/10 text-tertiary
+                             text-[10px] font-black flex items-center justify-center mt-0.5">1</span>
+                <span>Go to <strong class="text-on-surface">account.mapbox.com</strong> → Access Tokens</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="shrink-0 w-5 h-5 rounded-full bg-tertiary/10 text-tertiary
+                             text-[10px] font-black flex items-center justify-center mt-0.5">2</span>
+                <span>Click <strong class="text-on-surface">+ Create a token</strong> and name it <em>CycleWatch</em></span>
+              </li>
+              <li class="flex gap-3">
+                <span class="shrink-0 w-5 h-5 rounded-full bg-tertiary/10 text-tertiary
+                             text-[10px] font-black flex items-center justify-center mt-0.5">3</span>
+                <span>Under <strong class="text-on-surface">Secret scopes</strong>, check
+                  <strong class="text-on-surface">USER-FEEDBACK:READ</strong> and
+                  <strong class="text-on-surface">USER-FEEDBACK:WRITE</strong></span>
+              </li>
+              <li class="flex gap-3">
+                <span class="shrink-0 w-5 h-5 rounded-full bg-tertiary/10 text-tertiary
+                             text-[10px] font-black flex items-center justify-center mt-0.5">4</span>
+                <span>Click <strong class="text-on-surface">Create token</strong> and copy the <code class="bg-surface-container px-1 py-0.5 rounded text-[11px]">sk.*</code> value</span>
+              </li>
+            </ol>
+          </div>
+
+          <p class="text-xs text-outline">
+            Both tokens are stored in your browser's localStorage — they never leave this device.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="px-5 pb-8 pt-3 shrink-0">
+      <button id="btn-validate-save"
+              class="w-full h-14 rounded-xl text-sm font-extrabold text-on-primary
+                     bg-gradient-to-b from-primary to-primary-container
+                     active:scale-95 transition-transform duration-150 shadow-md
+                     flex items-center justify-center gap-2">
+        <span id="btn-validate-label">Validate &amp; Save</span>
+        <span id="btn-validate-spinner"
+              class="hidden material-symbols-outlined text-[18px] animate-spin">
+          progress_activity
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-14
+                 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10
+                 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+    <div class="flex items-center gap-2">
+      <button id="btn-settings"
+              class="w-9 h-9 flex items-center justify-center rounded-xl
+                     text-on-surface-variant hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined text-xl">settings</span>
+      </button>
+      <h1 class="text-xl font-black tracking-tight text-on-surface">CycleWatch</h1>
+    </div>
+    <button id="btn-report"
+            class="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-extrabold text-on-primary
+                   bg-gradient-to-b from-primary to-primary-container
+                   active:scale-95 transition-transform duration-150 shadow-md">
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      Report
+    </button>
+  </header>
+
+  <!-- ── Main ────────────────────────────────────────────────── -->
+  <main class="flex flex-col h-screen pt-14">
+
+    <!-- Map canvas (55 %) -->
+    <section class="h-[55%] relative w-full overflow-hidden bg-surface-container-low">
+      <div id="map" class="absolute inset-0"></div>
+
+      <!-- Floating map controls -->
+      <div class="absolute right-3 top-3 flex flex-col gap-2 z-10">
+        <button id="btn-recenter"
+                class="w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-xl
+                       flex items-center justify-center shadow-lg text-primary">
+          <span class="material-symbols-outlined text-xl">my_location</span>
+        </button>
+        <button id="btn-layers"
+                class="w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-xl
+                       flex items-center justify-center shadow-lg text-on-surface-variant">
+          <span class="material-symbols-outlined text-xl">layers</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Feed sheet (45 %) -->
+    <section class="h-[45%] bg-surface-container-low rounded-t-2xl relative z-20 flex flex-col
+                    shadow-[0_-8px_40px_rgba(0,0,0,0.05)]">
+      <div class="w-10 h-1 bg-outline-variant/30 rounded-full mx-auto mt-3 mb-2 shrink-0"></div>
+
+      <div class="px-4 pt-1 pb-2 shrink-0">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-black tracking-tight text-on-surface">Activity</h2>
+          <div class="bg-surface-container-high p-0.5 rounded-full flex w-40">
+            <button id="tab-nearby"
+                    class="flex-1 text-xs font-bold py-1.5 rounded-full
+                           bg-surface-container-lowest shadow-sm text-primary transition-all">
+              Nearby
+            </button>
+            <button id="tab-mine"
+                    class="flex-1 text-xs font-bold py-1.5 rounded-full
+                           text-on-surface-variant transition-all">
+              Mine
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="feed-list" class="flex-1 overflow-y-auto px-4 pb-24 space-y-2">
+        <p class="text-on-surface-variant text-sm text-center pt-6">No incidents nearby</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── Bottom nav ───────────────────────────────────────────── -->
+  <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center
+              px-4 pb-safe pt-3 pb-6
+              bg-surface/70 backdrop-blur-xl
+              border-t border-outline-variant/10 shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
+    <a id="nav-nearby" href="#"
+       class="flex flex-col items-center justify-center text-primary
+              bg-primary/5 rounded-xl px-6 py-2 transition-all">
+      <span class="material-symbols-outlined"
+            style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">explore</span>
+      <span class="text-[10px] font-black tracking-tight mt-0.5">Nearby</span>
+    </a>
+    <a id="nav-mine" href="#"
+       class="flex flex-col items-center justify-center text-outline
+              px-6 py-2 transition-all rounded-xl hover:bg-surface-container">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-[10px] font-black tracking-tight mt-0.5">Mine</span>
+    </a>
+  </nav>
+
+  <!-- ── JS ───────────────────────────────────────────────────── -->
+  <script>
+    // No tokens hardcoded — both are collected via the setup screen and stored in localStorage.
+
+    // ── Token manager ─────────────────────────────────────────
+    const TokenManager = {
+      _mapKey:      'cw_map_token',
+      _feedbackKey: 'cw_feedback_token',
+
+      getMap()           { return localStorage.getItem(this._mapKey); },
+      setMap(t)          { localStorage.setItem(this._mapKey, t); },
+      clearMap()         { localStorage.removeItem(this._mapKey); },
+
+      getFeedback()      { return localStorage.getItem(this._feedbackKey); },
+      setFeedback(t)     { localStorage.setItem(this._feedbackKey, t); },
+      clearFeedback()    { localStorage.removeItem(this._feedbackKey); },
+
+      hasAll()           { return !!(this.getMap() && this.getFeedback()); },
+
+      // Validate map token: fetch a style endpoint — 200 means the pk.* token works
+      async validateMap(token) {
+        try {
+          const r = await fetch(
+            `https://api.mapbox.com/styles/v1/mapbox/light-v11?access_token=${encodeURIComponent(token)}`
+          );
+          return r.ok;
+        } catch { return false; }
+      },
+
+      // Validate feedback token: list endpoint — 200 confirms user-feedback:read scope
+      async validateFeedback(token) {
+        try {
+          const r = await fetch(
+            `https://api.mapbox.com/user-feedback/v1/feedback?limit=1&access_token=${encodeURIComponent(token)}`
+          );
+          return r.ok;
+        } catch { return false; }
+      },
+
+      mask(token) {
+        if (!token || token.length < 15) return '••••••••';
+        return token.slice(0, 10) + '••••••••' + token.slice(-4);
+      },
+    };
+
+    // ── Setup screen ──────────────────────────────────────────
+    const screenToken          = document.getElementById('screen-token');
+    const inputMapToken        = document.getElementById('input-map-token');
+    const inputFeedbackToken   = document.getElementById('input-feedback-token');
+    const mapTokenStatus       = document.getElementById('map-token-status');
+    const feedbackTokenStatus  = document.getElementById('feedback-token-status');
+    const btnValidateSave      = document.getElementById('btn-validate-save');
+    const btnValidateLabel     = document.getElementById('btn-validate-label');
+    const btnValidateSpin      = document.getElementById('btn-validate-spinner');
+    const btnTokenClose        = document.getElementById('btn-token-close');
+    const currentMapRow        = document.getElementById('current-map-token-row');
+    const currentMapDisp       = document.getElementById('current-map-token-display');
+    const currentFeedbackRow   = document.getElementById('current-feedback-token-row');
+    const currentFeedbackDisp  = document.getElementById('current-feedback-token-display');
+    const btnMoreInfo          = document.getElementById('btn-more-info');
+    const moreInfoBody         = document.getElementById('more-info-body');
+    const moreInfoChevron      = document.getElementById('more-info-chevron');
+
+    btnMoreInfo.addEventListener('click', () => {
+      const open = !moreInfoBody.classList.contains('hidden');
+      moreInfoBody.classList.toggle('hidden', open);
+      moreInfoChevron.style.transform = open ? '' : 'rotate(180deg)';
+    });
+
+    function showStatus(el, type, msg) {
+      const colour = { success: 'text-green-700', error: 'text-secondary', loading: 'text-on-surface-variant' }[type];
+      const icon   = { success: 'check_circle',   error: 'error',          loading: 'hourglass_empty'         }[type];
+      el.className = `flex items-center gap-2 text-xs font-semibold px-1 ${colour}`;
+      el.innerHTML = `<span class="material-symbols-outlined text-[16px]">${icon}</span>${msg}`;
+      el.classList.remove('hidden');
+    }
+
+    function clearStatus(el) { el.classList.add('hidden'); el.innerHTML = ''; }
+
+    inputMapToken.addEventListener('input',      () => clearStatus(mapTokenStatus));
+    inputFeedbackToken.addEventListener('input', () => clearStatus(feedbackTokenStatus));
+
+    btnValidateSave.addEventListener('click', async () => {
+      const mapVal      = inputMapToken.value.trim();
+      const feedbackVal = inputFeedbackToken.value.trim();
+
+      // Need at least one field filled to do anything
+      if (!mapVal && !feedbackVal) return;
+
+      btnValidateLabel.textContent = 'Validating…';
+      btnValidateSpin.classList.remove('hidden');
+      btnValidateSave.disabled = true;
+
+      // Validate whichever fields have values
+      const [mapOk, feedbackOk] = await Promise.all([
+        mapVal      ? TokenManager.validateMap(mapVal)           : Promise.resolve(null),
+        feedbackVal ? TokenManager.validateFeedback(feedbackVal) : Promise.resolve(null),
+      ]);
+
+      btnValidateSpin.classList.add('hidden');
+      btnValidateSave.disabled = false;
+      btnValidateLabel.textContent = 'Validate & Save';
+
+      let allGood = true;
+
+      if (mapVal !== '') {
+        if (mapOk) {
+          TokenManager.setMap(mapVal);
+          showStatus(mapTokenStatus, 'success', 'Map token saved');
+        } else {
+          showStatus(mapTokenStatus, 'error', 'Invalid — should start with pk.*');
+          allGood = false;
+        }
+      }
+
+      if (feedbackVal !== '') {
+        if (feedbackOk) {
+          TokenManager.setFeedback(feedbackVal);
+          showStatus(feedbackTokenStatus, 'success', 'Feedback token saved');
+        } else {
+          showStatus(feedbackTokenStatus, 'error', 'Invalid or missing user-feedback scope');
+          allGood = false;
+        }
+      }
+
+      if (allGood && TokenManager.hasAll()) {
+        setTimeout(() => {
+          closeTokenScreen();
+          // Init map if it hasn't been initialised yet
+          if (!map) initMap(TokenManager.getMap());
+        }, 900);
+      }
+    });
+
+    document.getElementById('btn-clear-map-token').addEventListener('click', () => {
+      TokenManager.clearMap();
+      currentMapRow.classList.add('hidden');
+      clearStatus(mapTokenStatus);
+    });
+
+    document.getElementById('btn-clear-feedback-token').addEventListener('click', () => {
+      TokenManager.clearFeedback();
+      currentFeedbackRow.classList.add('hidden');
+      clearStatus(feedbackTokenStatus);
+    });
+
+    btnTokenClose.addEventListener('click', closeTokenScreen);
+
+    function openTokenScreen(fromSettings = false) {
+      screenToken.classList.remove('hidden');
+      inputMapToken.value = '';
+      inputFeedbackToken.value = '';
+      clearStatus(mapTokenStatus);
+      clearStatus(feedbackTokenStatus);
+
+      if (fromSettings) {
+        btnTokenClose.classList.remove('hidden');
+        const m = TokenManager.getMap();
+        const f = TokenManager.getFeedback();
+        if (m) { currentMapDisp.textContent = TokenManager.mask(m); currentMapRow.classList.remove('hidden'); }
+        else    { currentMapRow.classList.add('hidden'); }
+        if (f) { currentFeedbackDisp.textContent = TokenManager.mask(f); currentFeedbackRow.classList.remove('hidden'); }
+        else    { currentFeedbackRow.classList.add('hidden'); }
+      } else {
+        btnTokenClose.classList.add('hidden');
+        currentMapRow.classList.add('hidden');
+        currentFeedbackRow.classList.add('hidden');
+      }
+    }
+
+    function closeTokenScreen() {
+      screenToken.classList.add('hidden');
+    }
+
+    document.getElementById('btn-settings').addEventListener('click', () => openTokenScreen(true));
+
+    // ── Map init (lazy — called once map token is available) ──
+    let map     = null;
+    let userPos = null;
+    const LONDON = { center: [-0.118, 51.509], zoom: 13 };
+
+    function initMap(mapToken) {
+      mapboxgl.accessToken = mapToken;
+      map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v11',
+        ...LONDON,
+        attributionControl: false,
+      });
+      map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
+      map.on('load', requestLocation);
+    }
+
+    function requestLocation() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userPos = [pos.coords.longitude, pos.coords.latitude];
+          map.flyTo({ center: userPos, zoom: 14, speed: 1.2 });
+        },
+        () => { /* denied — stay on London fallback */ }
+      );
+    }
+
+    document.getElementById('btn-recenter').addEventListener('click', () => {
+      if (!map) return;
+      map.flyTo(userPos ? { center: userPos, zoom: 14 } : { ...LONDON });
+    });
+
+    // ── Boot ──────────────────────────────────────────────────
+    if (TokenManager.hasAll()) {
+      initMap(TokenManager.getMap());
+    } else {
+      openTokenScreen(false);
+    }
+
+    // ── Tab switching ─────────────────────────────────────────
+    const tabNearby = document.getElementById('tab-nearby');
+    const tabMine   = document.getElementById('tab-mine');
+
+    function setTab(active) {
+      const isNearby = active === 'nearby';
+      tabNearby.className = 'flex-1 text-xs font-bold py-1.5 rounded-full transition-all ' +
+        (isNearby ? 'bg-surface-container-lowest shadow-sm text-primary' : 'text-on-surface-variant');
+      tabMine.className = 'flex-1 text-xs font-bold py-1.5 rounded-full transition-all ' +
+        (!isNearby ? 'bg-surface-container-lowest shadow-sm text-primary' : 'text-on-surface-variant');
+    }
+
+    tabNearby.addEventListener('click', () => setTab('nearby'));
+    tabMine.addEventListener('click',   () => setTab('mine'));
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+
+</body>
+</html>
