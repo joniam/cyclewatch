@@ -305,7 +305,12 @@
                      text-on-surface-variant hover:bg-surface-container transition-colors">
         <span class="material-symbols-outlined text-xl">settings</span>
       </button>
-      <h1 class="text-xl font-black tracking-tight text-on-surface">CycleWatch</h1>
+      <button id="btn-wordmark" class="flex items-end gap-1.5 active:opacity-70 transition-opacity">
+        <h1 class="text-xl font-black tracking-tight text-on-surface">CycleWatch</h1>
+        <span id="build-num" class="text-[10px] font-bold text-outline/50 pb-0.5"></span>
+        <span id="update-dot"
+              class="hidden w-2 h-2 mb-1 rounded-full bg-primary animate-pulse shrink-0"></span>
+      </button>
     </div>
     <button id="btn-report"
             class="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-extrabold text-on-primary
@@ -696,8 +701,54 @@
   </script>
 
   <script>
+    // ── Build number — bump this on every push so the version is visible in the header ──
+    const BUILD = '6';
+    document.getElementById('build-num').textContent = 'b' + BUILD;
+
+    // ── Service worker + update detection ─────────────────────────
+    // Tapping the CycleWatch wordmark applies a waiting update and reloads.
+    // If no update is waiting, it triggers a fresh check against the server.
+    let pendingUpdateSW = null;
+
+    function showUpdateDot(sw) {
+      pendingUpdateSW = sw;
+      document.getElementById('update-dot').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-wordmark').addEventListener('click', () => {
+      if (pendingUpdateSW) {
+        // New SW is waiting — tell it to take over; controllerchange fires → reload
+        pendingUpdateSW.postMessage('SKIP_WAITING');
+      } else if ('serviceWorker' in navigator) {
+        // No update queued — force a network check now
+        navigator.serviceWorker.ready.then(reg => reg.update());
+      }
+    });
+
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        // Check for an update immediately on load
+        reg.update();
+
+        // A new SW may already be waiting (e.g. previous tab blocked activation)
+        if (reg.waiting) showUpdateDot(reg.waiting);
+
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          newSW.addEventListener('statechange', () => {
+            // installed = downloaded and waiting; only show dot if there's an active controller
+            // (i.e. this isn't the very first install — the app is already running)
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateDot(newSW);
+            }
+          });
+        });
+      });
+
+      // New SW called skipWaiting and took control — reload to get fresh assets
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
     }
   </script>
 

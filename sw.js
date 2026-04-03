@@ -6,7 +6,7 @@
 // Cache key includes a version string. Bump CACHE_VER on any app-shell
 // change to force old caches to evict on next install.
 
-const CACHE_VER = 'v5';
+const CACHE_VER = 'v6';
 const SHELL_CACHE = `cyclewatch-shell-${CACHE_VER}`;
 
 const SHELL_URLS = [
@@ -16,6 +16,11 @@ const SHELL_URLS = [
   'icons/icon-192.png',
   'icons/icon-512.png',
 ];
+
+// ── Update trigger — main thread sends SKIP_WAITING when user taps wordmark ──
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+});
 
 // ── Install: pre-cache the app shell ────────────────────────────
 self.addEventListener('install', (event) => {
