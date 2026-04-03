@@ -103,14 +103,14 @@
     /* Safe-area insets — viewport-fit=cover is set on the meta viewport tag.
        Without this the header overlaps the iPhone status bar / Dynamic Island. */
     header {
-      padding-top: env(safe-area-inset-top);
-      height: calc(3.5rem + env(safe-area-inset-top));
+      padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+      height: calc(3.5rem + env(safe-area-inset-top) + 0.5rem);
     }
-    main { padding-top: calc(3.5rem + env(safe-area-inset-top)); }
+    main { padding-top: calc(3.5rem + env(safe-area-inset-top) + 0.5rem); }
     /* Token screen header needs same treatment */
     #token-screen-header {
-      padding-top: env(safe-area-inset-top);
-      min-height: calc(3.5rem + env(safe-area-inset-top));
+      padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+      min-height: calc(3.5rem + env(safe-area-inset-top) + 0.5rem);
     }
     /* Home-indicator clearance at the bottom */
     nav { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
