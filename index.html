@@ -103,14 +103,14 @@
     /* Safe-area insets — viewport-fit=cover is set on the meta viewport tag.
        Without this the header overlaps the iPhone status bar / Dynamic Island. */
     header {
-      padding-top: calc(env(safe-area-inset-top) + 0.5rem);
-      height: calc(3.5rem + env(safe-area-inset-top) + 0.5rem);
+      padding-top: calc(env(safe-area-inset-top) + 1rem);
+      height: calc(3.5rem + env(safe-area-inset-top) + 1rem);
     }
-    main { padding-top: calc(3.5rem + env(safe-area-inset-top) + 0.5rem); }
+    main { padding-top: calc(3.5rem + env(safe-area-inset-top) + 1rem); }
     /* Token screen header needs same treatment */
     #token-screen-header {
-      padding-top: calc(env(safe-area-inset-top) + 0.5rem);
-      min-height: calc(3.5rem + env(safe-area-inset-top) + 0.5rem);
+      padding-top: calc(env(safe-area-inset-top) + 1rem);
+      min-height: calc(3.5rem + env(safe-area-inset-top) + 1rem);
     }
     /* Home-indicator clearance at the bottom */
     nav { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
@@ -702,7 +702,7 @@
 
   <script>
     // ── Build number — bump this on every push so the version is visible in the header ──
-    const BUILD = '6';
+    const BUILD = '7';
     document.getElementById('build-num').textContent = 'b' + BUILD;
 
     // ── Service worker + update detection ─────────────────────────
