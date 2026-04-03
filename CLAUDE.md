@@ -54,6 +54,7 @@ Two tokens are needed:
 
 ## Known bugs / deferred
 - **Layers button** — tapping the layers button on the map does nothing. Functionality not yet implemented. Deferred to Step 11 polish.
+- **Map load starts at London** — on every load the map initialises at London then slowly flies to the user's location. Fix: persist the last known position in localStorage and use it as the map's initial `center` so the jump is instant. Also consider reducing `flyTo` speed or replacing with `jumpTo` for snappier repositioning.
 
 ## Status
 - Step 1 complete — `index.html` scaffold built and verified in Chrome mobile emulator.
