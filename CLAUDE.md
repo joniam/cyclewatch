@@ -52,6 +52,9 @@ Two tokens are needed:
 
 **Note:** category string values accepted by the POST endpoint are not yet confirmed — need to test `Road Hazard` vs `road_hazard` vs `road_incident_issue` on first submit.
 
+## Known bugs / deferred
+- **Layers button** — tapping the layers button on the map does nothing. Functionality not yet implemented. Deferred to Step 11 polish.
+
 ## Status
 - Step 1 complete — `index.html` scaffold built and verified in Chrome mobile emulator.
 - Step 2 complete — PWA files built. Push to GitHub Pages blocked pending token setup (see Step 2 acceptance criteria).

@@ -349,6 +349,26 @@
     </section>
   </main>
 
+  <!-- ── iOS install nudge ───────────────────────────────────── -->
+  <!-- Shown only on iOS Safari when not already running standalone -->
+  <div id="ios-install-banner"
+       class="hidden fixed bottom-24 left-3 right-3 z-40
+              bg-inverse-surface text-inverse-on-surface
+              rounded-2xl px-4 py-3 shadow-xl
+              flex items-start gap-3">
+    <span class="material-symbols-outlined text-[22px] shrink-0 mt-0.5"
+          style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;">
+      ios_share
+    </span>
+    <p class="text-sm font-semibold leading-snug flex-1">
+      Tap <strong>Share</strong> then <strong>Add to Home Screen</strong> to install CycleWatch.
+    </p>
+    <button id="btn-dismiss-install"
+            class="shrink-0 text-inverse-on-surface/60 hover:text-inverse-on-surface transition-colors">
+      <span class="material-symbols-outlined text-[18px]">close</span>
+    </button>
+  </div>
+
   <!-- ── Bottom nav ───────────────────────────────────────────── -->
   <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center
               px-4 pb-safe pt-3 pb-6
@@ -605,6 +625,23 @@
 
     tabNearby.addEventListener('click', () => setTab('nearby'));
     tabMine.addEventListener('click',   () => setTab('mine'));
+
+    // ── iOS install nudge ─────────────────────────────────────
+    // Safari on iOS doesn't support beforeinstallprompt — only option is a manual nudge.
+    // Show once per session if: iOS Safari + not already installed as standalone.
+    const isIosSafari = /iphone|ipad|ipod/i.test(navigator.userAgent) &&
+                        /safari/i.test(navigator.userAgent) &&
+                        !/crios|fxios|opios/i.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone === true;
+
+    if (isIosSafari && !isStandalone) {
+      const banner = document.getElementById('ios-install-banner');
+      // Delay so it doesn't compete with the token setup screen
+      setTimeout(() => banner.classList.remove('hidden'), 2000);
+      document.getElementById('btn-dismiss-install').addEventListener('click', () => {
+        banner.classList.add('hidden');
+      });
+    }
   </script>
 
   <script>
