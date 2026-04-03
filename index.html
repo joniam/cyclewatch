@@ -102,15 +102,16 @@
 
     /* Safe-area insets — viewport-fit=cover is set on the meta viewport tag.
        Without this the header overlaps the iPhone status bar / Dynamic Island. */
+    /* Safe-area insets — h-14 / pt-14 Tailwind classes are removed from the
+       elements below so these rules have no specificity competition. */
     header {
-      padding-top: calc(env(safe-area-inset-top) + 1rem);
-      height: calc(3.5rem + env(safe-area-inset-top) + 1rem);
+      padding-top: env(safe-area-inset-top);
+      height: calc(3.5rem + env(safe-area-inset-top));
     }
-    main { padding-top: calc(3.5rem + env(safe-area-inset-top) + 1rem); }
-    /* Token screen header needs same treatment */
+    main { padding-top: calc(3.5rem + env(safe-area-inset-top)); }
     #token-screen-header {
-      padding-top: calc(env(safe-area-inset-top) + 1rem);
-      min-height: calc(3.5rem + env(safe-area-inset-top) + 1rem);
+      padding-top: env(safe-area-inset-top);
+      min-height: calc(3.5rem + env(safe-area-inset-top));
     }
     /* Home-indicator clearance at the bottom */
     nav { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
@@ -129,7 +130,7 @@
 
     <!-- Header -->
     <div id="token-screen-header"
-         class="flex items-center justify-between px-4 h-14 shrink-0
+         class="flex items-center justify-between px-4 shrink-0
                 border-b border-outline-variant/10">
       <h1 class="text-xl font-black tracking-tight text-on-surface">CycleWatch</h1>
       <button id="btn-token-close"
@@ -296,7 +297,7 @@
   </div>
 
   <!-- ── Header ──────────────────────────────────────────────── -->
-  <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-14
+  <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4
                  bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10
                  shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
     <div class="flex items-center gap-2">
@@ -322,7 +323,7 @@
   </header>
 
   <!-- ── Main ────────────────────────────────────────────────── -->
-  <main class="flex flex-col h-screen pt-14">
+  <main class="flex flex-col h-screen">
 
     <!-- Map canvas (55 %) -->
     <section class="h-[55%] relative w-full overflow-hidden bg-surface-container-low">
@@ -702,7 +703,7 @@
 
   <script>
     // ── Build number — bump this on every push so the version is visible in the header ──
-    const BUILD = '7';
+    const BUILD = '8';
     document.getElementById('build-num').textContent = 'b' + BUILD;
 
     // ── Service worker + update detection ─────────────────────────
