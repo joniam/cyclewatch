@@ -6,7 +6,7 @@
 // Cache key includes a version string. Bump CACHE_VER on any app-shell
 // change to force old caches to evict on next install.
 
-const CACHE_VER = 'v8';
+const CACHE_VER = 'v10';
 const SHELL_CACHE = `cyclewatch-shell-${CACHE_VER}`;
 
 const SHELL_URLS = [

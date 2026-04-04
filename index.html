@@ -328,11 +328,24 @@
     <!-- Map canvas (55 %) -->
     <section class="h-[55%] relative w-full overflow-hidden bg-surface-container-low">
       <div id="map" class="absolute inset-0"></div>
+      <!-- Dim overlay when report screen is open — pointer-events-none so map stays pannable -->
+      <div id="map-dim" class="hidden absolute inset-0 z-[5] bg-black/30 pointer-events-none transition-opacity duration-300"></div>
+      <!-- Crosshair at map centre — visible only during report flow -->
+      <div id="crosshair" class="hidden absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+        <div class="relative w-8 h-8">
+          <div class="absolute inset-1 rounded-full border-[2.5px] border-primary"></div>
+          <div class="absolute top-1/2 left-0 w-2 h-[2.5px] bg-primary -translate-y-1/2 rounded-full"></div>
+          <div class="absolute top-1/2 right-0 w-2 h-[2.5px] bg-primary -translate-y-1/2 rounded-full"></div>
+          <div class="absolute left-1/2 top-0 h-2 w-[2.5px] bg-primary -translate-x-1/2 rounded-full"></div>
+          <div class="absolute left-1/2 bottom-0 h-2 w-[2.5px] bg-primary -translate-x-1/2 rounded-full"></div>
+          <div class="absolute top-1/2 left-1/2 w-1 h-1 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        </div>
+      </div>
     </section>
 
     <!-- Floating map controls — fixed so they sit above the Mapbox canvas and
          receive touch events reliably on Safari (inside overflow:hidden they don't) -->
-    <div class="fixed right-3 z-40 flex flex-col gap-2" style="top: calc(3.5rem + 0.75rem);">
+    <div class="fixed right-3 z-40 flex flex-col gap-2" style="top: calc(3.5rem + env(safe-area-inset-top) + 0.75rem);">
       <button id="btn-recenter"
               class="w-10 h-10 bg-surface-container-lowest/80 backdrop-blur-md rounded-xl
                      flex items-center justify-center shadow-lg text-primary
@@ -407,6 +420,153 @@
     </span>
     <p class="text-xl font-black text-on-surface">Rotate your device</p>
     <p class="text-sm text-on-surface-variant">CycleWatch is designed for portrait mode</p>
+  </div>
+
+  <!-- ── Report: Step 1 — Pick location ────────────────────────── -->
+  <div id="report-locate"
+       class="fixed bottom-0 left-0 right-0 z-[80] px-3
+              transform translate-y-full transition-transform duration-300 ease-out pointer-events-none"
+       style="padding-bottom: max(1rem, env(safe-area-inset-bottom));">
+    <div class="bg-surface rounded-2xl shadow-xl p-4 pointer-events-auto">
+      <p class="text-[11px] font-black uppercase tracking-widest text-on-surface-variant mb-2">
+        Set Incident Location
+      </p>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-primary text-xl shrink-0"
+              style="font-variation-settings:'FILL' 1;">location_on</span>
+        <span id="report-location" class="text-sm text-on-surface truncate flex-1">Locating…</span>
+      </div>
+      <button id="btn-confirm-location"
+              class="w-full h-12 rounded-xl text-sm font-extrabold text-on-primary
+                     bg-gradient-to-b from-primary to-primary-container
+                     active:scale-95 transition-transform duration-150 shadow-md
+                     flex items-center justify-center gap-2">
+        Confirm Location
+      </button>
+      <button id="btn-cancel-locate"
+              class="w-full py-2 text-sm font-bold text-on-surface-variant mt-1">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Report: Step 2 — Form sheet ─────────────────────────────── -->
+  <div id="screen-report" class="fixed inset-0 z-[80] hidden pointer-events-none">
+    <div id="report-sheet"
+         class="absolute bottom-0 left-0 right-0 pointer-events-auto
+                bg-surface rounded-t-3xl flex flex-col
+                transform translate-y-full transition-transform duration-300 ease-out"
+         style="max-height: calc(88vh - env(safe-area-inset-top));">
+
+      <!-- Handle -->
+      <div class="w-10 h-1 bg-outline-variant/30 rounded-full mx-auto mt-3 mb-1 shrink-0"></div>
+
+      <!-- Scrollable content -->
+      <div class="flex-1 overflow-y-auto px-5"
+           style="padding-bottom: max(2rem, env(safe-area-inset-bottom));">
+
+        <h2 class="text-2xl font-black tracking-tight text-on-surface mb-4">Report an Incident</h2>
+
+        <!-- Confirmed location — tap to go back to step 1 -->
+        <button id="btn-change-location"
+                class="flex items-center gap-2 mb-6 w-full text-left group">
+          <span class="material-symbols-outlined text-primary text-xl shrink-0"
+                style="font-variation-settings:'FILL' 1;">location_on</span>
+          <span id="report-location-static"
+                class="text-sm text-on-surface truncate flex-1">—</span>
+          <span class="text-xs font-bold text-primary opacity-0 group-hover:opacity-100
+                       group-active:opacity-100 transition-opacity shrink-0">Change</span>
+          <span class="material-symbols-outlined text-outline text-[18px] shrink-0">edit_location_alt</span>
+        </button>
+
+        <!-- Incident type selector -->
+        <p class="text-[11px] font-black uppercase tracking-widest text-on-surface-variant mb-3">
+          Select Incident Type
+        </p>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+          <!-- Accident -->
+          <button data-type="accident" data-color="red"
+                  class="report-tile flex flex-col items-center gap-2 p-4 rounded-xl
+                         bg-surface-container-lowest shadow-[0_2px_8px_rgba(0,0,0,0.03)]
+                         transition-all active:scale-[0.97]">
+            <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-secondary text-[28px]"
+                    style="font-variation-settings:'FILL' 1;">car_crash</span>
+            </div>
+            <p class="text-sm font-bold text-on-surface">Accident</p>
+            <p class="text-[11px] text-on-surface-variant leading-tight">Requires medical/police</p>
+          </button>
+
+          <!-- Closure -->
+          <button data-type="closure" data-color="red"
+                  class="report-tile flex flex-col items-center gap-2 p-4 rounded-xl
+                         bg-surface-container-lowest shadow-[0_2px_8px_rgba(0,0,0,0.03)]
+                         transition-all active:scale-[0.97]">
+            <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-secondary text-[28px]"
+                    style="font-variation-settings:'FILL' 1;">block</span>
+            </div>
+            <p class="text-sm font-bold text-on-surface">Closure</p>
+            <p class="text-[11px] text-on-surface-variant leading-tight">Road or path blocked</p>
+          </button>
+
+          <!-- Hazard -->
+          <button data-type="hazard" data-color="amber"
+                  class="report-tile flex flex-col items-center gap-2 p-4 rounded-xl
+                         bg-surface-container-lowest shadow-[0_2px_8px_rgba(0,0,0,0.03)]
+                         transition-all active:scale-[0.97]">
+            <div class="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-tertiary text-[28px]"
+                    style="font-variation-settings:'FILL' 1;">error</span>
+            </div>
+            <p class="text-sm font-bold text-on-surface">Hazard</p>
+            <p class="text-[11px] text-on-surface-variant leading-tight">Glass, oil, or debris</p>
+          </button>
+
+          <!-- Construction -->
+          <button data-type="construction" data-color="amber"
+                  class="report-tile flex flex-col items-center gap-2 p-4 rounded-xl
+                         bg-surface-container-lowest shadow-[0_2px_8px_rgba(0,0,0,0.03)]
+                         transition-all active:scale-[0.97]">
+            <div class="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-tertiary text-[28px]"
+                    style="font-variation-settings:'FILL' 1;">construction</span>
+            </div>
+            <p class="text-sm font-bold text-on-surface">Construction</p>
+            <p class="text-[11px] text-on-surface-variant leading-tight">Active works ahead</p>
+          </button>
+        </div>
+
+        <!-- Additional details -->
+        <p class="text-[11px] font-black uppercase tracking-widest text-on-surface-variant mb-3">
+          Additional Details
+        </p>
+        <textarea id="report-note" rows="3"
+                  placeholder="Describe the situation (optional)…"
+                  class="w-full px-4 py-3 rounded-xl bg-surface-container-low
+                         border border-outline-variant/40 text-on-surface text-sm
+                         placeholder:text-outline resize-none
+                         focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+                         transition"></textarea>
+
+        <!-- Submit -->
+        <button id="btn-submit-report" disabled
+                class="w-full h-14 rounded-xl text-sm font-extrabold text-on-primary mt-6
+                       bg-gradient-to-b from-primary to-primary-container
+                       active:scale-95 transition-all duration-150 shadow-md
+                       disabled:opacity-40 disabled:active:scale-100
+                       flex items-center justify-center gap-2">
+          Submit Report
+        </button>
+
+        <!-- Cancel -->
+        <button id="btn-cancel-report"
+                class="w-full py-3 text-sm font-bold text-on-surface-variant mt-1">
+          Cancel
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- ── Bottom nav ───────────────────────────────────────────── -->
@@ -686,6 +846,144 @@
     tabNearby.addEventListener('click', () => setTab('nearby'));
     tabMine.addEventListener('click',   () => setTab('mine'));
 
+    // ── Report flow (two-step) ───────────────────────────────
+    const reportLocateBar    = document.getElementById('report-locate');
+    const reportLocation     = document.getElementById('report-location');
+    const screenReport       = document.getElementById('screen-report');
+    const reportSheet        = document.getElementById('report-sheet');
+    const reportLocationText = document.getElementById('report-location-static');
+    const reportNote         = document.getElementById('report-note');
+    const btnSubmit          = document.getElementById('btn-submit-report');
+    const crosshair          = document.getElementById('crosshair');
+    const mapDim             = document.getElementById('map-dim');
+    const reportTiles        = document.querySelectorAll('.report-tile');
+    const bottomNav          = document.querySelector('nav');
+
+    let selectedType = null;
+    let confirmedCoords = null;
+
+    // ── Step 1: pick location ──
+    function openStep1() {
+      if (!map) return;
+      // Reset form state when entering fresh (not when coming back from step 2)
+      if (!confirmedCoords) {
+        selectedType = null;
+        reportNote.value = '';
+        btnSubmit.disabled = true;
+        reportTiles.forEach(t => deselectTile(t));
+      }
+
+      bottomNav.classList.add('hidden');
+      crosshair.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        reportLocateBar.classList.remove('translate-y-full');
+      });
+
+      reverseGeocode();
+      map.on('moveend', reverseGeocode);
+    }
+
+    function confirmLocation() {
+      const { lng, lat } = map.getCenter();
+      confirmedCoords = { lng, lat };
+
+      map.off('moveend', reverseGeocode);
+      crosshair.classList.add('hidden');
+      reportLocateBar.classList.add('translate-y-full');
+
+      reportLocationText.textContent = reportLocation.textContent;
+      openStep2();
+    }
+
+    // ── Step 2: form sheet ──
+    function openStep2() {
+      mapDim.classList.remove('hidden');
+      screenReport.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        reportSheet.classList.remove('translate-y-full');
+      });
+    }
+
+    function backToStep1() {
+      reportSheet.classList.add('translate-y-full');
+      mapDim.classList.add('hidden');
+      setTimeout(() => {
+        screenReport.classList.add('hidden');
+        openStep1();
+      }, 300);
+    }
+
+    function closeReport() {
+      reportSheet.classList.add('translate-y-full');
+      reportLocateBar.classList.add('translate-y-full');
+      crosshair.classList.add('hidden');
+      mapDim.classList.add('hidden');
+      bottomNav.classList.remove('hidden');
+      confirmedCoords = null;
+      if (map) map.off('moveend', reverseGeocode);
+      setTimeout(() => screenReport.classList.add('hidden'), 300);
+    }
+
+    // ── Reverse geocode ──
+    let geocodeAbort = null;
+    async function reverseGeocode() {
+      if (!map) return;
+      if (geocodeAbort) geocodeAbort.abort();
+      geocodeAbort = new AbortController();
+
+      const { lng, lat } = map.getCenter();
+      reportLocation.textContent = 'Locating…';
+
+      try {
+        const r = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?types=address,poi&limit=1&access_token=${encodeURIComponent(mapboxgl.accessToken)}`,
+          { signal: geocodeAbort.signal }
+        );
+        const data = await r.json();
+        reportLocation.textContent = data.features?.length
+          ? data.features[0].place_name
+          : `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          reportLocation.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        }
+      }
+    }
+
+    // ── Tile selection ──
+    reportTiles.forEach(tile => {
+      tile.addEventListener('click', () => {
+        reportTiles.forEach(t => deselectTile(t));
+        selectTile(tile);
+        selectedType = tile.dataset.type;
+        btnSubmit.disabled = false;
+      });
+    });
+
+    function selectTile(tile) {
+      const isRed = tile.dataset.color === 'red';
+      tile.classList.add('ring-2', isRed ? 'ring-secondary' : 'ring-tertiary',
+                         isRed ? 'bg-secondary/5' : 'bg-tertiary/5');
+    }
+
+    function deselectTile(tile) {
+      tile.classList.remove('ring-2', 'ring-secondary', 'ring-tertiary',
+                            'bg-secondary/5', 'bg-tertiary/5');
+    }
+
+    // ── Wire buttons ──
+    document.getElementById('btn-report').addEventListener('click', () => { confirmedCoords = null; openStep1(); });
+    document.getElementById('btn-confirm-location').addEventListener('click', confirmLocation);
+    document.getElementById('btn-cancel-locate').addEventListener('click', closeReport);
+    document.getElementById('btn-change-location').addEventListener('click', backToStep1);
+    document.getElementById('btn-cancel-report').addEventListener('click', closeReport);
+
+    // Submit stub — actual persistence comes in step 4
+    btnSubmit.addEventListener('click', () => {
+      if (!selectedType) return;
+      closeReport();
+    });
+
     // ── iOS install nudge ─────────────────────────────────────
     // DEBUG: showing on all browsers to verify the banner renders correctly.
     // Once confirmed, restore the iOS Safari + standalone check.
@@ -703,7 +1001,7 @@
 
   <script>
     // ── Build number — bump this on every push so the version is visible in the header ──
-    const BUILD = '8';
+    const BUILD = '10';
     document.getElementById('build-num').textContent = 'b' + BUILD;
 
     // ── Service worker + update detection ─────────────────────────
